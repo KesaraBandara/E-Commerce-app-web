@@ -1,13 +1,19 @@
 package com.example.ecomweb.service;
 
+import com.example.ecomweb.dto.CategoryDTO;
 import com.example.ecomweb.dto.ProductDTO;
+import com.example.ecomweb.entity.Category;
 import com.example.ecomweb.entity.Product;
 import com.example.ecomweb.repo.ProductRepo;
 import com.example.ecomweb.util.VarList;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -29,5 +35,13 @@ public class ProductService {
             }
         }
 
+
+
+    public List<ProductDTO> getAllProductsByID(String id) {
+        List<Product> productList = productRepo.getAllProductByID(id);
+        return modelMapper.map(productList, new TypeToken<List<ProductDTO>>() {}.getType());
     }
+}
+
+
 
