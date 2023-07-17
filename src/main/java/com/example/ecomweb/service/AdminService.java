@@ -18,21 +18,6 @@ public class AdminService {
     @Autowired
     private ModelMapper modelMapper;
 
-//    public String checkAdmin(AdminDTO adminDTO) {
-//
-//
-//        String userID = String.valueOf(adminDTO.getAdminID());
-//        String username = adminDTO.getUserName();
-//        String password = adminDTO.getPassword();
-//
-//        Admin admin = adminRepo.findByAdminIDAndUsernameAndPasswordEquals(userID, username, password);
-//
-//        if (admin != null) {
-//            return VarList.RSP_SUCCESS;
-//        } else {
-//            return VarList.RSP_DUPLICATED;
-//        }
-//        }
     public String checkAdmin(AdminDTO adminDTO) {
         int userID = adminDTO.getAdminID();
         String username = adminDTO.getUserName();
@@ -46,17 +31,5 @@ public class AdminService {
             return VarList.RSP_DUPLICATED;
         }
     }
-
-//    public String checkAdmin(String userID, String username, String password) {
-//        Admin admin = adminRepo.findByAdminIDAndUsernameAndPassword(userID, username, password);
-//        if (admin != null) {
-//            return VarList.RSP_SUCCESS;
-//        } else {
-//            return VarList.RSP_DUPLICATED;
-//        }
-//    }
-
-
-
 }
 

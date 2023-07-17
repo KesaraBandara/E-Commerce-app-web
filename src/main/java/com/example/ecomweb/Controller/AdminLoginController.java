@@ -1,10 +1,8 @@
 package com.example.ecomweb.Controller;
 
 import com.example.ecomweb.dto.AdminDTO;
-import com.example.ecomweb.dto.CategoryDTO;
 import com.example.ecomweb.dto.ResponseDTO;
 import com.example.ecomweb.service.AdminService;
-import com.example.ecomweb.service.CategoryService;
 import com.example.ecomweb.util.VarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,10 +27,12 @@ public class AdminLoginController {
     public ResponseEntity checkAdmin(@RequestBody AdminDTO adminDTO) {
         try {
 
+            System.out.println(adminDTO);
             String res = adminService.checkAdmin(adminDTO);
             if (res.equals("00")) {
                 responseDTO.setCode(VarList.RSP_SUCCESS);
                 responseDTO.setMessage("Success");
+                System.out.println(responseDTO);
                 return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
 
             } else if (res.equals("06")) {
