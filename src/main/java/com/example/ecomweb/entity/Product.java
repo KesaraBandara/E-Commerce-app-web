@@ -1,69 +1,53 @@
 package com.example.ecomweb.entity;
 
+import com.example.ecomweb.entity.Category;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.*;
-import lombok.Data;
+import javax.persistence.*;
 
 @Entity
-@Data
-@Table(name ="product")
+@Table(name = "products")
 public class Product {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column  (name = "product_id", length = 20)
-    private int productId;
+    private Integer id;
 
-    @Column (name = "product_name", length = 20)
-    private String productName;
-    @Column(name="price", length =10)
-    private double price;
-    @Column(name = "product_image", length = 200)
+    private String name;
     private String imageURL;
-
-    @Column(name = "description", length =100)
+    private double price;
     private String description;
 
-    @Column(name ="date", length =10)
-    private String addDate;
-
-    @Column(name ="category_id", length =20)
-    private String categoryID;
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "category_id")
+    Category category;
 
     public Product() {
     }
 
-    public Product(int productId, String productName,double price, String imageURL, String description, String addDate, String categoryID) {
-        this.productId = productId;
-        this.productName = productName;
-        this.price= price;
+    public Product(Integer id, String name, String imageURL, double price, String description, Category category) {
+        this.id = id;
+        this.name = name;
         this.imageURL = imageURL;
-        this.description = description;
-        this.addDate = addDate;
-        this.categoryID = categoryID;
-    }
-
-    public int getProductId() {
-        return productId;
-    }
-
-    public void setProductId(int productId) {
-        this.productId = productId;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
-    public double getPrice(){
-        return price;
-    }
-
-    public void setPrice(double price){
         this.price = price;
+        this.description = description;
+        this.category = category;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getImageURL() {
@@ -74,6 +58,14 @@ public class Product {
         this.imageURL = imageURL;
     }
 
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -82,32 +74,23 @@ public class Product {
         this.description = description;
     }
 
-    public String getAddDate() {
-        return addDate;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setAddDate(String addDate) {
-        this.addDate = addDate;
-    }
-
-    public String getCategoryID() {
-        return categoryID;
-    }
-
-    public void setCategoryID(String categoryID) {
-        this.categoryID = categoryID;
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     @Override
     public String toString() {
         return "Product{" +
-                "productId=" + productId +
-                ", productName='" + productName + '\'' +
-                ", price=" + price +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", imageURL='" + imageURL + '\'' +
+                ", price=" + price +
                 ", description='" + description + '\'' +
-                ", addDate='" + addDate + '\'' +
-                ", categoryID='" + categoryID + '\'' +
+                ", category=" + category +
                 '}';
     }
 }

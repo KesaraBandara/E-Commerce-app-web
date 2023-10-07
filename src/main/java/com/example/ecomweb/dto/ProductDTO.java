@@ -1,49 +1,40 @@
 package com.example.ecomweb.dto;
 
 public class ProductDTO {
+    private Integer id;
 
-    private int productId;
-    private String productName;
-    private double price;
+    private String name;
     private String imageURL;
+    private double price;
     private String description;
-    private String addDate;
-    private String categoryID;
+    private Integer categoryId;
 
     public ProductDTO() {
     }
 
-    public ProductDTO(int productId, String productName,double price, String imageURL, String description, String addDate, String categoryID) {
-        this.productId = productId;
-        this.productName = productName;
-        this.price = price;
+    public ProductDTO(Integer id, String name, String imageURL, double price, String description, Integer categoryId) {
+        this.id = id;
+        this.name = name;
         this.imageURL = imageURL;
-        this.description = description;
-        this.addDate = addDate;
-        this.categoryID = categoryID;
-    }
-
-    public int getProductId() {
-        return productId;
-    }
-
-    public void setProductId(int productId) {
-        this.productId = productId;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
-
-    public double getPrice(){
-        return price;
-    }
-    public void setPrice(Double price){
         this.price = price;
+        this.description = description;
+        this.categoryId = categoryId;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getImageURL() {
@@ -54,6 +45,14 @@ public class ProductDTO {
         this.imageURL = imageURL;
     }
 
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -62,32 +61,23 @@ public class ProductDTO {
         this.description = description;
     }
 
-    public String getAddDate() {
-        return addDate;
+    public Integer getCategoryId() {
+        return categoryId;
     }
 
-    public void setAddDate(String addDate) {
-        this.addDate = addDate;
-    }
-
-    public String getCategoryID() {
-        return categoryID;
-    }
-
-    public void setCategoryID(String categoryID) {
-        this.categoryID = categoryID;
+    public void setCategoryId(Integer categoryId) {
+        this.categoryId = categoryId;
     }
 
     @Override
     public String toString() {
         return "ProductDTO{" +
-                "productId=" + productId +
-                ", productName='" + productName + '\'' +
-                ", price=" + price +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", imageURL='" + imageURL + '\'' +
+                ", price=" + price +
                 ", description='" + description + '\'' +
-                ", addDate='" + addDate + '\'' +
-                ", categoryID='" + categoryID + '\'' +
+                ", categoryId=" + categoryId +
                 '}';
     }
 }

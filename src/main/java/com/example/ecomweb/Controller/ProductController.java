@@ -1,111 +1,47 @@
 package com.example.ecomweb.Controller;
 
-
+import com.ec.ec.service.ProductService;
+import com.example.ecomweb.common.ApiResponse;
 import com.example.ecomweb.dto.ProductDTO;
-import com.example.ecomweb.dto.ResponseDTO;
-import com.example.ecomweb.service.ProductService;
-import com.example.ecomweb.util.VarList;
+import com.example.ecomweb.entity.Category;
+import com.example.ecomweb.repo.CategoryRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("api/v1/product")
+@RequestMapping("/api/v1/product")
 public class ProductController {
-
     @Autowired
-    public ProductService productService;
-
+    ProductService productService;
     @Autowired
-    private ResponseDTO responseDTO;
-
-
-    @PostMapping(value = "/saveProduct")
-    public ResponseEntity saveProduct(@RequestBody ProductDTO productDTO){
-
-        try{
-
-            String res = productService.saveProduct(productDTO);
-            if (res.equals("00")){
-                responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage("Success");
-                responseDTO.setContent(productDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
-            }
-            else if (res.equals("06")){
-                responseDTO.setCode(VarList.RSP_DUPLICATED);
-                responseDTO.setMessage("Already added");
-                responseDTO.setContent(productDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
-            }
-            else {
-                responseDTO.setCode(VarList.RSP_FAIL);
-                responseDTO.setMessage("Error");
-                responseDTO.setContent(null);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
-            }
+    CategoryRepo categoryRepo;
+    @PostMapping("/add")
+    public ResponseEntity<ApiResponse> createProduct(@RequestBody ProductDTO productDTO) {
+        Optional<Category> optionalCategory = categoryRepo.findById((productDTO.getCategoryId()));
+        if (!optionalCategory.isPresent()) {
+            return new ResponseEntity<>(new ApiResponse(false, "Product does not exist"), HttpStatus.BAD_REQUEST);
         }
-
-        catch (Exception exception){
-            responseDTO.setCode(VarList.RSP_ERROR);
-            responseDTO.setMessage(exception.getMessage());
-            responseDTO.setContent(null);
-            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
+        productService.createProduct(productDTO, optionalCategory.get());
+        return new ResponseEntity<>(new ApiResponse(true,"Product has been added"), HttpStatus.CREATED);
     }
-    @GetMapping("/getAllProductsByID/{id}")
-    public ResponseEntity getAllProductsByID(@PathVariable String id){
-
-        try {
-            List<ProductDTO> productDTO = productService.getAllProductsByID(id);
-            if (productDTO !=null) {
-                responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage("Success");
-                responseDTO.setContent(productDTO);
-                System.out.println(responseDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
-            } else {
-                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage("No Employee Available For this empID");
-                responseDTO.setContent(null);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception exception) {
-            responseDTO.setCode(VarList.RSP_ERROR);
-            responseDTO.setMessage(exception.getMessage());
-            responseDTO.setContent(exception);
-            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        }
-
-    @DeleteMapping("/deleteProduct/{productID}")
-    public ResponseEntity deleteProduct(@PathVariable int productID){
-        try {
-            String res = productService.deleteCategory(productID);
-            if (res.equals("00")) {
-                responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage("Success");
-                responseDTO.setContent(null);
-                return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
-            } else {
-                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage("No Product Available For this ID");
-                responseDTO.setContent(null);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception e) {
-            responseDTO.setCode(VarList.RSP_ERROR);
-            responseDTO.setMessage(e.getMessage());
-            responseDTO.setContent(e);
-            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @GetMapping("/")
+    public ResponseEntity<List<ProductDTO>>getAllProducts() {
+        final List<ProductDTO> products = productService.getAllProducts();
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
-
-
+    @PutMapping("/update/{productId}")
+    public ResponseEntity<ApiResponse> updateProduct(@PathVariable("productId") int productId,@RequestBody ProductDTO productDTO) throws Exception {
+        Optional<Category> optionalCategory = categoryRepo.findById((productDTO.getCategoryId()));
+        if (!optionalCategory.isPresent()) {
+            return new ResponseEntity<>(new ApiResponse(false, "Product does not exist"), HttpStatus.BAD_REQUEST);
+        }
+        productService.updateProduct(productDTO,productId);
+        return new ResponseEntity<>(new ApiResponse(true,"Product has been updated"), HttpStatus.OK);
+    }
 }

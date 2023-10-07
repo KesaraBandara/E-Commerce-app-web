@@ -1,50 +1,74 @@
 package com.example.ecomweb.service;
 
+
 import com.example.ecomweb.dto.ProductDTO;
+import com.example.ecomweb.entity.Category;
 import com.example.ecomweb.entity.Product;
+import com.example.ecomweb.exceptions.ProductNoExistsException;
 import com.example.ecomweb.repo.ProductRepo;
-import com.example.ecomweb.util.VarList;
-import jakarta.transaction.Transactional;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@Transactional
 public class ProductService {
-
     @Autowired
-    private ProductRepo productRepo;
+    ProductRepo productRepo;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    public void createProduct(ProductDTO productDTO, Category category) {
+        Product product = new Product();
+        product.setDescription(productDTO.getDescription());
+        product.setImageURL(productDTO.getImageURL());
+        product.setName(product.getName());
+        product.setCategory(category );
+        product.setPrice(productDTO.getPrice());
+        productRepo.save(product);
+    }
+    public ProductDTO getProductDTO(Product product){
+        ProductDTO productDTO = new ProductDTO();
+        productDTO.setDescription(product.getDescription());
+        productDTO.setImageURL(product.getImageURL());
+        productDTO.setName(product.getName());
+        productDTO.setCategoryId( product.getCategory().getId());
+        productDTO.setPrice(productDTO.getPrice());
+        productDTO.setId(product.getId());
+        return productDTO;
 
-    public String saveProduct(ProductDTO productDTO) {
-
-            if (productRepo.existsById(productDTO.getProductId())) {
-                return VarList.RSP_DUPLICATED;
-            } else {
-                productRepo.save(modelMapper.map(productDTO, Product.class));
-                return VarList.RSP_SUCCESS;
-            }
-        }
-
-
-
-    public List<ProductDTO> getAllProductsByID(String id) {
-        List<Product> productList = productRepo.getAllProductByID(id);
-        return modelMapper.map(productList, new TypeToken<List<ProductDTO>>() {}.getType());
     }
 
+    public List<ProductDTO>getAllProducts() {
+        List<Product> allProducts = productRepo.findAll();
 
-    public String deleteCategory(int productID) {
-        if (productRepo.existsById(productID)) {
-            productRepo.deleteById(productID);
-            return VarList.RSP_SUCCESS;
-        } else {
-            return VarList.RSP_NO_DATA_FOUND;
+        List<ProductDTO> productDTOS = new ArrayList<>();
+        for (Product product: allProducts){
+            productDTOS.add(getProductDTO(product));
         }
+        return productDTOS;
+    }
+
+    public void updateProduct(ProductDTO productDTO, Integer productId) throws Exception {
+        Optional<Product> optionalProduct = productRepo.findById(productId);
+        if(!optionalProduct.isPresent()) {
+            throw new Exception("Product not found");
+        }
+
+        Product product = optionalProduct.get();
+        product.setDescription(productDTO.getDescription());
+        product.setImageURL(productDTO.getImageURL());
+        product.setName(product.getName());
+        product.setPrice(productDTO.getPrice());
+        productRepo.save(product);
+    }
+
+    public Product findById(Integer productId)throws ProductNoExistsException {
+        Optional<Product> optionalProduct =  productRepo.findById(productId);
+        if(optionalProduct.isEmpty()) {
+            throw  new ProductNoExistsException("product is invalid"  + productId);
+        }
+        return optionalProduct.get();
     }
 }
