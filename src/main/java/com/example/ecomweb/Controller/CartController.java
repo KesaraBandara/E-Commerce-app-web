@@ -1,106 +1,56 @@
 package com.example.ecomweb.Controller;
 
 
-import com.example.ecomweb.dto.CartDTO;
-import com.example.ecomweb.dto.ResponseDTO;
+import com.example.ecomweb.common.ApiResponse;
+import com.example.ecomweb.dto.cart.AddToCartDTO;
+import com.example.ecomweb.dto.cart.CartDTO;
+import com.example.ecomweb.entity.User;
+import com.example.ecomweb.service.AuthenticationService;
 import com.example.ecomweb.service.CartService;
-import com.example.ecomweb.util.VarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("api/v1/cart")
+@RequestMapping("/api/v1/cart")
 public class CartController {
     @Autowired
-    public CartService cartService;
+    private CartService cartService;
 
     @Autowired
-    private ResponseDTO responseDTO;
+    private AuthenticationService authenticationService;
 
+    @PostMapping("/add")
+    public ResponseEntity<ApiResponse>addToCart(@RequestBody AddToCartDTO addToCartDTO,
+                                                @RequestParam("token") String token){
 
-    @PostMapping(value = "/addCart")
-    public ResponseEntity addCart(@RequestBody CartDTO cartDTO){
-
-        try{
-            String res = cartService.addCart(cartDTO);
-
-            if(res.equals("00")){
-                responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage("Success");
-                responseDTO.setContent(cartDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);            }
-
-            else if(res.equals("06")){
-                responseDTO.setCode(VarList.RSP_DUPLICATED);
-                responseDTO.setMessage("Already added");
-                responseDTO.setContent(cartDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
-            }
-            else {
-                responseDTO.setCode(VarList.RSP_FAIL);
-                responseDTO.setMessage("Error");
-                responseDTO.setContent(null);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
-            }
-        }
-
-        catch (Exception exception){
-            responseDTO.setCode(VarList.RSP_ERROR);
-            responseDTO.setMessage(exception.getMessage());
-            responseDTO.setContent(null);
-            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        authenticationService.authenticate(token);
+        User user = authenticationService.getUser(token);
+        cartService.addToCart(addToCartDTO, user);
+        return  new ResponseEntity<>(new ApiResponse(true, "Added to cart"), HttpStatus.CREATED);
     }
+    @GetMapping("/")
+    public ResponseEntity<CartDTO> getCartItems(@RequestParam("token") String token) {
 
-    @GetMapping("/getAllProductsToCartByID/{id}")
-    public ResponseEntity getAllProductsByID(@PathVariable String id){
+        authenticationService.authenticate(token);
 
-        try {
-            List<CartDTO> cartDTOS = cartService.getAllProductsToCartByID(id);
-            if (cartDTOS !=null) {
-                responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage("Success");
-                responseDTO.setContent(cartDTOS);
-                System.out.println(responseDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
-            } else {
-                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage("No product Available For this ID");
-                responseDTO.setContent(null);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception exception) {
-            responseDTO.setCode(VarList.RSP_ERROR);
-            responseDTO.setMessage(exception.getMessage());
-            responseDTO.setContent(exception);
-            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
+        User user = authenticationService.getUser(token);
+        CartDTO cartDTO = cartService.listCartItems(user);
+        return new ResponseEntity<>(cartDTO,HttpStatus.OK);
     }
-    @DeleteMapping("/deleteProductInCart/{user_id}/{id}")
-    public ResponseEntity deleteProductInCart(@PathVariable String user_id ,@PathVariable String id){
-        try {
-            String res = cartService.deleteProductInCart(user_id,id);
-            if (res.equals("00")) {
-                responseDTO.setCode(VarList.RSP_SUCCESS);
-                responseDTO.setMessage("Success");
-                responseDTO.setContent(null);
-                return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
-            } else {
-                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
-                responseDTO.setMessage("No Product Available For this ID");
-                responseDTO.setContent(null);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception e) {
-            responseDTO.setCode(VarList.RSP_ERROR);
-            responseDTO.setMessage(e.getMessage());
-            responseDTO.setContent(e);
-            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @DeleteMapping("/delete/{cartItemId")
+    public ResponseEntity<ApiResponse> deleteCartItem(@PathVariable("cartItem") Integer cartItemId,
+                                                      @RequestParam ("token") String token){
+
+        authenticationService.authenticate(token);
+
+        User user = authenticationService.getUser(token);
+
+        cartService.deleteCartItem(cartItemId, user);
+        return  new ResponseEntity<>(new ApiResponse(true,"Item has been removed"),HttpStatus.OK);
+
     }
 
 

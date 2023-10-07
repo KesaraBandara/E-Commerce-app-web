@@ -1,51 +1,69 @@
 package com.example.ecomweb.service;
 
-import com.example.ecomweb.dto.CartDTO;
-import com.example.ecomweb.dto.ProductDTO;
+
+import com.example.ecomweb.dto.cart.AddToCartDTO;
+import com.example.ecomweb.dto.cart.CartDTO;
+import com.example.ecomweb.dto.cart.CartItemDTO;
 import com.example.ecomweb.entity.Cart;
 import com.example.ecomweb.entity.Product;
+import com.example.ecomweb.entity.User;
+import com.example.ecomweb.exceptions.CustomException;
 import com.example.ecomweb.repo.CartRepo;
-import com.example.ecomweb.util.VarList;
-import jakarta.transaction.Transactional;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@Transactional
 public class CartService {
-
     @Autowired
-    private CartRepo cartRepo;
-
+    ProductService productService;
     @Autowired
-    private ModelMapper modelMapper;
-    public String addCart(CartDTO cartDTO) {
+    CartRepo cartRepo;
+    public void addToCart(AddToCartDTO addToCartDTO, User user) {
 
-        if (cartRepo.existsById(cartDTO.getId())) {
-            return VarList.RSP_DUPLICATED;
-        } else {
-            cartRepo.save(modelMapper.map(cartDTO,Cart.class));
-            return VarList.RSP_SUCCESS;
-        }    }
+        Product product =  productService.findById( addToCartDTO.getProductId());
+        Cart cart = new Cart();
+        cart.setProduct(product);
+        cart.setUser(user);
+        cart.setQuantity(addToCartDTO.getQuantity());
+        cart.setCreatedDate(new Date());
 
-    public List<CartDTO> getAllProductsToCartByID(String id) {
-
-        List<Cart> cartProductList = cartRepo.getProductByID(id);
-        return modelMapper.map(cartProductList, new TypeToken<List<CartDTO>>() {}.getType());
+        cartRepo.save(cart);
 
     }
 
-    public String deleteProductInCart(String user_id,String id) {
-        if (cartRepo.existsById(Integer.valueOf(id))) {
-            cartRepo.deleteByUser_id(user_id);
-            return VarList.RSP_SUCCESS;
-        } else {
-            return VarList.RSP_NO_DATA_FOUND;
-        }
-}
+    public CartDTO listCartItems(User user) {
 
+        List<Cart> cartList = cartRepo.findAllByUserOrderByCreatedDateDesc(user);
+        List<CartItemDTO> cartItem = new ArrayList<>();
+        double totalCost = 0;
+        for (Cart cart: cartList){
+            CartItemDTO cartItemDTO = new CartItemDTO(cart);
+            totalCost += cartItemDTO.getQuantity() * cart.getProduct().getPrice();
+            cartItem.add(cartItemDTO);
+        }
+        CartDTO cartDTO = new CartDTO();
+        cartDTO.setTotalCost(totalCost);
+        cartDTO.setCartItems(cartItem);
+        return cartDTO;
+    }
+
+    public void deleteCartItem(Integer cartItemId, User user) {
+
+        Optional<Cart> optionalCart = cartRepo.findById(cartItemId);
+
+        if(optionalCart.isEmpty()) {
+            throw new CustomException("cart item id is invalid" + cartItemId);
+        }
+        Cart cart = optionalCart.get();
+        if(cart.getUser() != user) {
+            throw new CustomException("cart item does not belong to user:" + cartItemId);
+        }
+        cartRepo.delete(cart);
+
+    }
 }
