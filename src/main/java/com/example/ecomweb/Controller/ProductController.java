@@ -1,10 +1,10 @@
 package com.example.ecomweb.Controller;
 
-import com.ec.ec.service.ProductService;
 import com.example.ecomweb.common.ApiResponse;
 import com.example.ecomweb.dto.ProductDTO;
 import com.example.ecomweb.entity.Category;
 import com.example.ecomweb.repo.CategoryRepo;
+import com.example.ecomweb.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
