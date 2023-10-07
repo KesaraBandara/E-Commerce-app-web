@@ -1,43 +1,28 @@
 package com.example.ecomweb.entity;
 
-import jakarta.persistence.*;
-import lombok.Data;
+
+import javax.persistence.*;
+
 
 @Entity
-@Data
 @Table(name = "category")
 public class Category {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column  (name = "category_id", length = 20)
-    private int categoryId;
+    private Integer id;
+    @Column(name="category_name",nullable = false)
+    private  String categoryName;
+    @Column(name="description",nullable = false)
+    private  String description;
+    @Column(name="imageURL",nullable = false)
+    private  String imageURL;
 
-    @Column (name = "category_name", length = 20,nullable = false)
-    private String categoryName;
-
-    @Column (name = "image_url", length =250,nullable = false)
-    private String imageURL;
-
-    @Column (name= "description", length = 250,nullable = false)
-    private String description;
-
-    public Category() {
+    public Integer getId() {
+        return id;
     }
 
-    public Category(int categoryId, String categoryName, String imageURL, String description) {
-        this.categoryId = categoryId;
-        this.categoryName = categoryName;
-        this.imageURL = imageURL;
-        this.description = description;
-    }
-
-    public int getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getCategoryName() {
@@ -48,14 +33,6 @@ public class Category {
         this.categoryName = categoryName;
     }
 
-    public String getImageURL() {
-        return imageURL;
-    }
-
-    public void setImageURL(String imageURL) {
-        this.imageURL = imageURL;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -64,13 +41,11 @@ public class Category {
         this.description = description;
     }
 
-    @Override
-    public String toString() {
-        return "Category{" +
-                "categoryId=" + categoryId +
-                ", categoryName='" + categoryName + '\'' +
-                ", imageURL='" + imageURL + '\'' +
-                ", description='" + description + '\'' +
-                '}';
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
     }
 }
